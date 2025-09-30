@@ -135,30 +135,42 @@ public class NumberTriangle {
         // are more convenient to work with when reading the file contents.
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         if (inputStream == null) {
-            throw new FileNotFoundException
+            throw new FileNotFoundException("Resource not found: " + fname);
         }
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        try {
+            java.util.List<NumberTriangle> prevRow = new java.util.ArrayList<>();
+            NumberTriangle top = null;
 
+            String line = br.readLine();
+            while (line != null) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    String[] parts = line.split("\\s+");
 
-        // TODO define any variables that you want to use to store things
+                    java.util.List<NumberTriangle> curRow = new java.util.ArrayList<>(parts.length);
+                    for (String p : parts) {
+                        curRow.add(new NumberTriangle(Integer.parseInt(p)));
+                    }
+                    if (top == null) {
+                        top = curRow.get(0);
+                    }
 
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
-
-        String line = br.readLine();
-        while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
-            line = br.readLine();
+                    for (int i = 0; i < prevRow.size(); i++) {
+                        prevRow.get(i).setLeft(curRow.get(i));
+                        prevRow.get(i).setRight(curRow.get(i + 1));
+                    }
+                    prevRow = curRow;
+                }
+                line = br.readLine();
+            }
+            return top;
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ignore) {
+            }
         }
-        br.close();
-        return top;
     }
 
     public static void main(String[] args) throws IOException {
